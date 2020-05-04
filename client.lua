@@ -38,14 +38,18 @@ end,false)
 RegisterCommand("revive", function(source,args,raw)
     local target, distance = GetClosestPlayer()
     local targetPlayer = GetPlayerServerId(target)
-    print(distance)
-    print(tostring(targetPlayer))
-    print(tostring(IsPedDeadOrDying(targetPlayer,1)))
+    local playerPed = PlayerPedId()
+    local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
     if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
-        TaskStartScenarioInPlace(playerPed, "CPR_PUMPCHEST", 0, true)
+        for i=1,15 do
+            Citizen.Wait(900)
+            RequestAnimDict(lib)
+            TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
+        end
         TriggerServerEvent("DRP_Medic:revive",targetPlayer)
+        ClearPedTasks(playerPed)
     else
-        TriggerEvent("DRP_Core:Info", "Revive", tostring("No dead persons near you"), 7000, false, "leftCenter")
+        TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
     end
 end,false)
 
@@ -54,7 +58,7 @@ RegisterCommand("heal", function(source,args,raw)
     if distance ~= nil and distance < 3 then
         TriggerServerEvent("DRP_Medic:heal",GetPlayerServerId(target))
     else
-        TriggerEvent("DRP_Core:Info", "Heal", tostring("No persons near you"), 7000, false, "leftCenter")
+        TriggerEvent("DRP_Core:Info", "EMS", tostring("No persons near you"), 7000, false, "leftCenter")
     end
 end,false)
 
@@ -75,7 +79,7 @@ RegisterCommand("drag", function()
     if distance ~= -1 and distance < 3 then
         TriggerServerEvent("DRP_Medic:CheckEMSEscort", GetPlayerServerId(target))
     else
-        TriggerEvent("DRP_Core:Info", "Drag", tostring("No Persons Near You"), 7000, false, "leftCenter")
+        TriggerEvent("DRP_Core:Info", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
     end
 end,false)
 

@@ -30,9 +30,9 @@ AddEventHandler("DRP_Medic:ToggleDuty", function(unemployed)
                             exports["drp_jobcore"]:RequestJobChange(src, job, jobLabel, {
                                 rank = jobResults.data[1].rank,
                             })
-                            TriggerClientEvent("DRP_Core:Info", src, "Government", tostring("Welcome "..jobLabel.." Grade "..jobResults.data[1].rank.." "..characterInfo.name..""), 4000, true, "leftCenter")
+                            TriggerClientEvent("DRP_Core:Info", src, "Government", tostring("Welcome "..jobLabel.." Grade "..jobResults.data[1].rank.." "..characterInfo.name..""), 4500, true, "leftCenter")
                         else
-                            TriggerClientEvent("DRP_Core:Info", src, "Government", tostring("You must be hired as an Emergency Medical Technician to go on duty."), 4000, true, "leftCenter")
+                            TriggerClientEvent("DRP_Core:Info", src, "Government", tostring("You must be hired as an Emergency Medical Technician to go on duty."), 4500, true, "leftCenter")
                         end
                     end)
                 end
@@ -77,22 +77,29 @@ end)
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-    if playerjob.job == "EMS" then
+    if playerjob.job == "EMS" and target ~= 0 then
+        print("attempt to revive")
+        print(target)
         TriggerClientEvent("DRP_Medic:revive",target)
+    elseif playerjob.job ~= "EMS" then
+        print("attempt to alert")
+        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
     else
-        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),7000,false,"leftCenter")
+        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
     end
 end)
 
 RegisterServerEvent("DRP_Medic:heal")
 AddEventHandler("DRP_Medic:heal", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-    if playerjob.job == "EMS" then
-        TriggerClientEvent("DRP_Medic:heal",target)
-        TriggerClientEvent("DRP_Core:Info",target,"EMS", tostring("You have been healed"),4500,false,"leftCenter")
-    else
-        TriggerClientEvent("DRP_Core:Info",source,"Government",tostring("You are not an EMS"),7000,false,"leftCenter")
-    end
+        if playerjob.job == "EMS" and target ~= 0 then
+            TriggerClientEvent("DRP_Medic:heal",target)
+            TriggerClientEvent("DRP_Core:Info",target,"EMS", tostring("You have been healed"),4500,false,"leftCenter")
+        elseif playerjob.job ~= "EMS" then
+            TriggerClientEvent("DRP_Core:Info",source,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
+        else
+            TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
+        end
 end)
 
 RegisterServerEvent("DRP_Medic:CheckEMSEscort")
