@@ -80,7 +80,7 @@ AddEventHandler("DRP_Medic:revive", function(target)
     if playerjob.job == "EMS" and target ~= 0 then
         print("attempt to revive")
         print(target)
-        TriggerClientEvent("DRP_Medic:revive",target)
+        TriggerClientEvent("DRP_Core:Revive",target)
     elseif playerjob.job ~= "EMS" then
         print("attempt to alert")
         TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
