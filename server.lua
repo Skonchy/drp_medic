@@ -40,13 +40,74 @@ AddEventHandler("DRP_Medic:ToggleDuty", function(unemployed)
         end
     end)
 
+RegisterServerEvent("DRP_Medic:changeRank")
+AddEventHandler("DRP_Medic:changeRank", function(target,bool)
+    local job = string.upper("EMS")
+    local characterInfo, currentPlayerJob = exports["drp_id"]:GetCharacterData(source), exports["drp_jobcore"]:GetPlayerJob(source)
+    local targetInfo, targetPlayerJob = exports["drp_id"]:GetCharacterData(target), exports["drp_jobcore"]:GetPlayerJob(target)
+    if currentPlayerJob.job == job then
+        exports["externalsql"]:AsyncQueryCallback({
+            query = "SELECT * FROM medic WHERE `char_id` = :charid",
+            data = {
+                charid = characterInfo.charid
+            }
+        }, function(results)
+            if results.data[1] ~= nil and results.data[1].rank >= 4 then
+               if targetPlayerJob.job == job then
+                    exports["externalsql"]:AsyncQueryCallback({
+                        query = "SELECT * FROM medic WHERE `char_id` = :charid",
+                        data = {
+                            charid = targetInfo.charid
+                        }
+                    }, function(results)
+                        local rankvar
+                        if bool then
+                            rankvar = (results[1].rank+1)%5
+                            exports["externalsql"]:AsyncQuery({
+                                query = "UPDATE medic SET `rank` = :rank WHERE `char_id` = :charid",
+                                data = {
+                                    rank = rankvar,
+                                    charid = targetInfo.charid
+                                }
+                            })
+                            TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been promoted to EMT grade "..rankvar), 4500, true, "leftCenter")
+                            TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You promoted "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
+                        else
+                            if results[1].rank == 1 then
+                                exports["externalsql"]:AsyncQuery({
+                                    query = "DELETE FROM medic WHERE `char_id` = :charid",
+                                    data = {
+                                        charid = targetInfo.charid
+                                    }
+                                })
+                                exports["drp_jobcore"]:RequestJobChange(target, false, false, false)
+                                TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been fired"), 4500, true, "leftCenter")
+                                TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You fired "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
+                            else
+                                rankvar = (results[1].rank-1)%5
+                                exports["externalsql"]:AsyncQuery({
+                                    query = "UPDATE medic SET `rank` = :rank WHERE `char_id` = :charid",
+                                    data = {
+                                        rank = rankvar,
+                                        charid = targetInfo.charid
+                                    }
+                                })
+                                TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been demoted to EMT grade "..rankvar), 4500, true, "leftCenter")
+                                TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You demoted "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
+                            end
+                        end
+                    end)
+               end
+            end
+        end)
+    end
+end)
 
 RegisterServerEvent("DRP_Medic:hire")
 AddEventHandler("DRP_Medic:hire", function(target)
-    local characterInfo = exports["drp_id"]:GetCharacterData(source)
+    local characterInfo, targetInfo = exports["drp_id"]:GetCharacterData(source), exports["drp_id"]:GetCharacterData(target)
     local playerjob = exports["drp_jobcore"]:GetPlayerJob(source)
-    local playerRank, targetInfo
-    local target = target
+    local playerRank
     if playerjob.job == "EMS" then
         exports["externalsql"]:AsyncQueryCallback({
             query = "SELECT * FROM medic WHERE `char_id`= :charid",
@@ -58,9 +119,8 @@ AddEventHandler("DRP_Medic:hire", function(target)
                 playerRank = result.data[1].rank
             end
         end)
-        if playerRank == 5 then
+        if playerRank >= 4 then
             exports["drp_jobcore"]:RequestJobChange(target,"EMS","Emergency Medical Technician",false)
-            targetInfo = exports["drp_id"]:GetCharacterData(target)
             exports["externalsql"]:AsyncQuery({
                 query = "INSERT INTO medic VALUES (DEFAULT, 1, :targetid)",
                 data = {
@@ -78,11 +138,8 @@ RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
     if playerjob.job == "EMS" and target ~= 0 then
-        print("attempt to revive")
-        print(target)
         TriggerClientEvent("DRP_Core:Revive",target)
     elseif playerjob.job ~= "EMS" then
-        print("attempt to alert")
         TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
     else
         TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
@@ -116,7 +173,6 @@ AddEventHandler("DRP_Medic:heal", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
         if playerjob.job == "EMS" and target ~= 0 then
             TriggerClientEvent("DRP_Medic:heal",target)
-            TriggerClientEvent("DRP_Core:Info",target,"EMS", tostring("You have been healed"),4500,false,"leftCenter")
         elseif playerjob.job ~= "EMS" then
             TriggerClientEvent("DRP_Core:Info",source,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
         else
@@ -124,11 +180,6 @@ AddEventHandler("DRP_Medic:heal", function(target)
         end
 end)
 
-RegisterServerEvent("DRP_Medic:CheckEMSEscort")
-AddEventHandler("DRP_Medic:CheckEMSEscort", function(targetPlayer)
-    local src = source
-    TriggerClientEvent("DRP_Medic:EscortToggle", targetPlayer, src)
-end)
 
 RegisterServerEvent("DRP_Medic:CallHandler")
 AddEventHandler("DRP_Medic:CallHandler", function(coords, information)

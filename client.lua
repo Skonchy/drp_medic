@@ -35,12 +35,27 @@ RegisterCommand("hire", function(source,args,raw)
     end
 end,false)
 
+RegisterCommand("promote", function(source,args,raw)
+    local target = args[1]
+    if target then
+        TriggerServerEvent("DRP_Medic:changeRank",target, true)
+    end
+end, false)
+
+RegisterCommand("demote",function(source,args,raw)
+    local target = args[1]
+    if target then
+        TriggerServerEvent("DRP_Medic:changeRank", target, false)
+    end
+end, false)
+
 RegisterCommand("revive", function(source,args,raw)
     local target, distance = GetClosestPlayer()
     local targetPlayer = GetPlayerServerId(target)
     local playerPed = PlayerPedId()
-    local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
+    print(tostring(target).." "..tostring(distance))
     if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
+        local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
         for i=1,15 do
             Citizen.Wait(900)
             RequestAnimDict(lib)
@@ -54,7 +69,7 @@ RegisterCommand("revive", function(source,args,raw)
 end,false)
 
 RegisterCommand("heal", function(source,args,raw)
-    local target, distance = exports["drp_core"]:GetClosestPlayer()
+    local target, distance = GetClosestPlayer()
     if distance ~= nil and distance < 3 then
         TriggerServerEvent("DRP_Medic:heal",GetPlayerServerId(target))
     else
@@ -75,9 +90,10 @@ RegisterCommand("911", function(source, args, raw)
 end,false)
 
 RegisterCommand("drag", function()
-    local target, distance = exports["drp_core"]:GetClosestPlayer()
-    if distance ~= -1 and distance < 3 then
-        TriggerServerEvent("DRP_Medic:CheckEMSEscort", GetPlayerServerId(target))
+    local target, distance = GetClosestPlayer()
+    print(tostring(target).." "..tostring(distance))
+    if distance ~= nil and distance < 3 then
+        TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
     else
         TriggerEvent("DRP_Core:Info", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
     end
@@ -86,9 +102,6 @@ end,false)
 RegisterNetEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function()
     local playerPed = PlayerPedId()
-    print("Attempting to revive you")
-    --RespawnPed(playerPed,playerPedPos,0)
-    --ClearPedTasks(playerPed)
     ResurrectPed(playerPed)
     ClearPedTasksImmediately(playerPed)
     local playerPedPos = GetEntityCoords(playerPed, false)
@@ -101,15 +114,8 @@ AddEventHandler("DRP_Medic:heal", function(target)
     local playerPed = PlayerPedId()
     local maxHealth = GetEntityMaxHealth(playerPed)
     SetEntityHealth(playerPed,maxHealth)
-    TriggerEvent("DRP_Core:Info", "Heal", tostring("Healed"), 7000, false, "leftCenter")
-end)
-
-RegisterNetEvent("DRP_Medic:EscortToggle")
-AddEventHandler("DRP_Medic:EscortToggle", function(target)
-	if not IsPedSittingInAnyVehicle(target) then
-		drag = not drag
-		officerDrag = target
-	end
+    ClearPedBloodDamage(playerPed)
+    TriggerEvent("DRP_Core:Info", "Heal", tostring("You have been healed"), 7000, false, "leftCenter")
 end)
 
 RegisterNetEvent("DRP_Medic:AwaitingCall")
@@ -136,7 +142,6 @@ Citizen.CreateThread(function()
         end
         if onCall then
             local playerPos = GetEntityCoords(PlayerPedId())
-            print(target.pos)
             local dist = Vdist(playerPos.x,playerPos.y,playerPos.z,target.pos.x,target.pos.y,target.pos.z)
             if dist < 3 then
                 RemoveBlip(target.blip)
@@ -150,6 +155,7 @@ end)
 Citizen.CreateThread(function()
     local sleepTimer = 1000
     while true do
+        print("Current Health: "..GetEntityHealth(PlayerPedId()))
         for a = 1, #DRPMedicJob.SignOnAndOff do
         local ped = PlayerPedId()
         local pedPos = GetEntityCoords(ped)
@@ -171,7 +177,21 @@ Citizen.CreateThread(function()
 end)
 
 Citizen.CreateThread(function()
-
+    local sleepTimer=1000
+    while true do
+        for a=1, #DRPMedicJob.Garages do
+            local ped = PlayerPedId()
+            local pedPos = GetEntityCoords(ped)
+            local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
+            if distance <= 5.0 then
+               sleepTimer = 5
+               exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
+               if IsControlJustPressed(1,86) then
+                SpawnCar(DRPMedicJob.CarSpawns[a])
+               end
+            end
+        end
+    end
 end)
 
 -- Functions -- 
@@ -205,4 +225,14 @@ function RespawnPed(ped, coords, heading)
 	NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, heading, true, false)
 	SetPlayerInvincible(ped, false)
 	ClearPedBloodDamage(ped)
+end
+
+function SpawnCar(coords)
+    local hash = GetHashKey("ambulance")
+    RequestModel(hash)
+    while not HasModelLoaded(hash) do
+        RequestModel(hash)
+        Citizen.Wait(0)
+    end
+    CreateVehicle(hash, coords.x,coords.y,coords.z,coords.h,true,false)
 end
