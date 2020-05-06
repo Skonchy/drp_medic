@@ -89,6 +89,28 @@ AddEventHandler("DRP_Medic:revive", function(target)
     end
 end)
 
+RegisterServerEvent("DRP_Medic:Revived")
+AddEventHandler("DRP_Medic:Revived", function(boolValue)
+    local src = source
+    local character = exports["drp_id"]:GetCharacterData(src)
+    local deadValue = 0
+    -- Basic If Statement To Check Bool Value Status And Update Variable Where Needed --
+    if boolValue then
+        deadValue = 1
+    else
+        deadValue = 0
+    end
+    ------------------------------------------------------------------------------------
+    exports["externalsql"]:AsyncQueryCallback({
+        query = "UPDATE characters SET `isDead` = :deadValue WHERE `id` = :charid",
+            data = {
+                deadValue = deadValue,
+                charid = character.charid
+            }
+        }, function(updateResults)
+    end)
+end)
+
 RegisterServerEvent("DRP_Medic:heal")
 AddEventHandler("DRP_Medic:heal", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)

@@ -86,12 +86,14 @@ end,false)
 RegisterNetEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function()
     local playerPed = PlayerPedId()
-    Citizen.Wait(10000)
-    ClearPedTasks(playerPed)
-    ResurrectPed(playerPed)
-    ClearPedTasksImmediately(playerPed)
     local playerPedPos = GetEntityCoords(playerPed, false)
-    SetEntityCoords(playerPed, playerPedPos.x, playerPedPos.y, playerPedPos.z + 0.3, 0.0, 0.0, 0.0, 0)
+    print("Attempting to revive you")
+    RespawnPed(playerPed,playerPedPos,0)
+    --ClearPedTasks(playerPed)
+    --ResurrectPed(playerPed)
+    --ClearPedTasksImmediately(playerPed)
+    --SetEntityCoords(playerPed, playerPedPos.x, playerPedPos.y, playerPedPos.z + 0.3, 0.0, 0.0, 0.0, 0)
+    TriggerServerEvent("DRP_Medic:Revived", false)
 end)
 
 RegisterNetEvent("DRP_Medic:heal")
@@ -117,7 +119,7 @@ AddEventHandler("DRP_Medic:AwaitingCall", function(coords)
     SendNotification("Press ~g~E~s~ to accept call or press ~g~X~s~ to refuse call")
     PlaySoundFrontend(-1, "TENNIS_POINT_WON", "HUD_AWARDS")
 end)
-
+-- 911 Calls Thread -- 
 Citizen.CreateThread(function()
     while true do 
         if IsControlJustPressed(1, 38) and callActive then
@@ -144,6 +146,35 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- Sign On/Off and Garage Zones --
+Citizen.CreateThread(function()
+    local sleepTimer = 1000
+    while true do
+        for a = 1, #DRPMedicJob.SignOnAndOff do
+        local ped = PlayerPedId()
+        local pedPos = GetEntityCoords(ped)
+        local distance = Vdist(pedPos.x, pedPos.y, pedPos.z, DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z)
+            if distance <= 5.0 then
+                sleepTimer =  5
+                exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to sign on duty or ~r~[X]~w~ to sign off duty"))
+                if IsControlJustPressed(1, 86) then
+                    TriggerServerEvent("DRP_Medic:ToggleDuty", false)
+                elseif IsControlJustPressed(1, 73) then
+                    TriggerServerEvent("DRP_Medic:ToggleDuty", true)
+                end
+            else
+                sleepTimer = 1000
+            end
+        end
+        Citizen.Wait(sleepTimer)
+    end
+end)
+
+Citizen.CreateThread(function()
+
+end)
+
+-- Functions -- 
 function GetClosestPlayer()
     local players = GetPlayers()
     local closestDistance = -1
@@ -167,4 +198,11 @@ end
 ---------------------------------------------------------------------------
 function GetPlayers()
     return GetActivePlayers()
+end
+
+function RespawnPed(ped, coords, heading)
+	SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false, true)
+	NetworkResurrectLocalPlayer(coords.x, coords.y, coords.z, heading, true, false)
+	SetPlayerInvincible(ped, false)
+	ClearPedBloodDamage(ped)
 end
