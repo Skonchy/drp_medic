@@ -147,3 +147,12 @@ AddEventHandler("DRP_Medic:CallHandler", function(coords, information)
         end
     end
 end)
+
+RegisterServerEvent('DRP_Police:CheckIfMenuIsAllowed')
+AddEventHandler('DRP_Police:CheckIfMenuIsAllowed', function()
+    local src = source
+    local job = exports["drp_jobcore"]:GetPlayerJob(src)
+    if job.job == "EMS" then
+        TriggerClientEvent("DRP_Medic:OpenMenu", src)
+    end
+end)

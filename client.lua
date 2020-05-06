@@ -166,13 +166,16 @@ Citizen.CreateThread(function()
                 sleepTimer = 1000
             end
         end
+        if IsControlJustPressed(1, 318) then
+            TriggerServerEvent('DRP_Medic:CheckIfMenuIsAllowed')
+        end
         Citizen.Wait(sleepTimer)
     end
 end)
 
 --Menu
 Citizen.CreateThread(function()
-    WarMenu.CreateThread('ems_menu', 'EMS Menu')
+    WarMenu.CreateMenu('ems_menu', 'EMS Menu')
     WarMenu.SetSubTitle('ems_menu', '')
 
     while true do
@@ -212,6 +215,11 @@ Citizen.CreateThread(function()
         end
         Citizen.Wait(0)
     end
+end)
+
+RegisterNetEvent('DRP_Medic:OpenMenu')
+AddEventHandler('DRP_Medic:OpenMenu', function()
+    WarMenu.OpenMenu('ems_menu')
 end)
 
 -- Functions -- 
