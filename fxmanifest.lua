@@ -4,7 +4,8 @@ game 'gta5'
 
 client_scripts{
     'config.lua',
-    'client.lua'
+    'client.lua',
+    '@warmenu/warmenu.lua'
 }
 
 server_scripts {

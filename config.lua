@@ -6,7 +6,7 @@ DRPMedicJob.Garages = {}
 
 
 DRPMedicJob.SignOnAndOff = {
-    {x = 299.34, y = -1447.52, z = 29.9}
+    {x = 299.85, y = -578.78, z = 43.26}
 }
 
 DRPMedicJob.Garages = {}
@@ -21,11 +21,11 @@ DRPMedicJob.Garages["Emergency Medical Technician"] = {
         MarkerData = {label = "~b~[E]~w~ EMS/Fire Garage", markerType = 1, color = {255, 0, 0}, scale = 1.0},
         Locations = {
             {
-                x = 307.05,
-                y = -1434.57,
-                z = 29.9,
+                x = 294.71,
+                y = -600.91,
+                z = 43.3,
                 spawnpoints = {
-                    {x = 296.54, y = -1430.83, z = 29.8, h = 42.71}
+                    {x = 288.75, y = -611.32, z = 43.38, h = 43.38}
                 }
             }
         }

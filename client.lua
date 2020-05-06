@@ -170,8 +170,48 @@ Citizen.CreateThread(function()
     end
 end)
 
+--Menu
 Citizen.CreateThread(function()
+    WarMenu.CreateThread('ems_menu', 'EMS Menu')
+    WarMenu.SetSubTitle('ems_menu', '')
 
+    while true do
+        if WarMenu.IsMenuOpened('ems_menu') then
+            if WarMenu.Button('Drag') then
+                local target, distance = GetClosestPlayer()
+                if distance ~= -1 and distance < 3 then
+                    TriggerServerEvent("DRP_Medic:CheckEMSEscort", GetPlayerServerId(target))
+                else
+                    TriggerEvent("DRP_Core:Info", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
+                end
+            elseif WarMenu.Button('Heal') then
+                local target, distance = GetClosestPlayer()
+                if distance ~= nil and distance < 3 then
+                    TriggerServerEvent("DRP_Medic:heal",GetPlayerServerId(target))
+                else
+                    TriggerEvent("DRP_Core:Info", "EMS", tostring("No persons near you"), 7000, false, "leftCenter")
+                end
+            elseif WarMenu.Button('Revive') then
+                local target, distance = GetClosestPlayer()
+                local targetPlayer = GetPlayerServerId(target)
+                local playerPed = PlayerPedId()
+                local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
+                if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
+                    for i=1,15 do
+                        Citizen.Wait(900)
+                        RequestAnimDict(lib)
+                        TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
+                    end
+                    TriggerServerEvent("DRP_Medic:revive",targetPlayer)
+                    ClearPedTasks(playerPed)
+                else
+                    TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
+                end
+            end
+            WarMenu.Display()
+        end
+        Citizen.Wait(0)
+    end
 end)
 
 -- Functions -- 
