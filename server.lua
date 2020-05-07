@@ -6,7 +6,7 @@ AddEventHandler("DRP_Medic:ToggleDuty", function(unemployed)
     local characterInfo = exports["drp_id"]:GetCharacterData(source)
     local currentPlayerJob = exports["drp_jobcore"]:GetPlayerJob(src)
     local unemployed = unemployed
-    print(tostring(currentPlayerJob).." "..tostring(characterInfo))
+    print(dump(job).." "..dump(characterInfo))
     ---------------------------------------------------------------------------
         if unemployed then
             if currentPlayerJob.job ~= "UNEMPLOYED" then
@@ -198,3 +198,16 @@ AddEventHandler("DRP_Medic:CallHandler", function(coords, information)
         end
     end
 end)
+
+function dump(o)
+    if type(o) == 'table' then
+       local s = '{ '
+       for k,v in pairs(o) do
+          if type(k) ~= 'number' then k = '"'..k..'"' end
+          s = s .. '['..k..'] = ' .. dump(v) .. ','
+       end
+       return s .. '} '
+    else
+       return tostring(o)
+    end
+ end

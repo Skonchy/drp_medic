@@ -185,7 +185,7 @@ Citizen.CreateThread(function()
             local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
             if distance <= 5.0 then
                sleepTimer = 5
-               exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
+               exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
                if IsControlJustPressed(1,86) then
                 SpawnCar(DRPMedicJob.CarSpawns[a])
                end
