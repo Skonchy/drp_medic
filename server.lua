@@ -6,7 +6,6 @@ AddEventHandler("DRP_Medic:ToggleDuty", function(unemployed)
     local characterInfo = exports["drp_id"]:GetCharacterData(source)
     local currentPlayerJob = exports["drp_jobcore"]:GetPlayerJob(src)
     local unemployed = unemployed
-    print(dump(job).." "..dump(characterInfo))
     ---------------------------------------------------------------------------
         if unemployed then
             if currentPlayerJob.job ~= "UNEMPLOYED" then
@@ -199,15 +198,11 @@ AddEventHandler("DRP_Medic:CallHandler", function(coords, information)
     end
 end)
 
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
+RegisterServerEvent('DRP_Medic:AllowedToSpawn')
+AddEventHandler('DRP_Medic:AllowedToSpawn', function(L)
+    local location = L
+    local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
+    if playerjob.job == "EMS" and target ~= 0 then
+        TriggerClientEvent("DRP_Medic:Spawn",source, location)
     end
- end
+end)

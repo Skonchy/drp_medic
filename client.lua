@@ -125,6 +125,13 @@ AddEventHandler("DRP_Medic:AwaitingCall", function(coords)
     SendNotification("Press ~g~E~s~ to accept call or press ~g~X~s~ to refuse call")
     PlaySoundFrontend(-1, "TENNIS_POINT_WON", "HUD_AWARDS")
 end)
+
+RegisterNetEvent('DRP_Medic:Spawn')
+AddEventHandler('DRP_Medic:Spawn', function(L)
+    local location = L
+    SpawnCar(location)
+end)
+
 -- 911 Calls Thread -- 
 Citizen.CreateThread(function()
     while true do 
@@ -187,7 +194,7 @@ Citizen.CreateThread(function()
                sleepTimer = 5
                exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
                if IsControlJustPressed(1,86) then
-                SpawnCar(DRPMedicJob.CarSpawns[a])
+                TriggerServerEvent('DRP_Medic:AllowedToSpawn', DRPMedicJob.CarSpawns[a])
                end
             end
         end
