@@ -45,7 +45,10 @@ AddEventHandler("DRP_Medic:changeRank", function(target,bool)
     local job = string.upper("EMS")
     local characterInfo, currentPlayerJob = exports["drp_id"]:GetCharacterData(source), exports["drp_jobcore"]:GetPlayerJob(source)
     local targetInfo, targetPlayerJob = exports["drp_id"]:GetCharacterData(target), exports["drp_jobcore"]:GetPlayerJob(target)
+    -- print("Target "..tostring(target).." data "..tostring(targetInfo))
+    -- print("Target job "..tostring(exports["drp_jobcore"]:GetPlayerJob(target)).." name "..exports["drp_id"]:GetCharacterName(target))
     if currentPlayerJob.job == job then
+        print("Source is ems")
         exports["externalsql"]:AsyncQueryCallback({
             query = "SELECT * FROM medic WHERE `char_id` = :charid",
             data = {
@@ -53,6 +56,7 @@ AddEventHandler("DRP_Medic:changeRank", function(target,bool)
             }
         }, function(results)
             if results.data[1] ~= nil and results.data[1].rank >= 4 then
+                print("Call has results and source is command")
                if targetPlayerJob.job == job then
                     exports["externalsql"]:AsyncQueryCallback({
                         query = "SELECT * FROM medic WHERE `char_id` = :charid",

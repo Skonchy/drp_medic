@@ -36,9 +36,10 @@ RegisterCommand("hire", function(source,args,raw)
 end,false)
 
 RegisterCommand("promote", function(source,args,raw)
-    local target = args[1]
+    --local target, distance = GetClosestPlayer()
+    print(tostring(target).." "..tostring(GetPlayerFromServerId(target).." "..tostring(distance).." "..tostring(GetPlayerServerId(target))))
     if target then
-        TriggerServerEvent("DRP_Medic:changeRank",target, true)
+        TriggerServerEvent("DRP_Medic:changeRank",GetPlayerServerId(target), true)
     end
 end, false)
 
@@ -176,23 +177,23 @@ Citizen.CreateThread(function()
     end
 end)
 
-Citizen.CreateThread(function()
-    local sleepTimer=1000
-    while true do
-        for a=1, #DRPMedicJob.Garages do
-            local ped = PlayerPedId()
-            local pedPos = GetEntityCoords(ped)
-            local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
-            if distance <= 5.0 then
-               sleepTimer = 5
-               exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
-               if IsControlJustPressed(1,86) then
-                SpawnCar(DRPMedicJob.CarSpawns[a])
-               end
-            end
-        end
-    end
-end)
+-- Citizen.CreateThread(function()
+--     local sleepTimer=1000
+--     while true do
+--         for a=1, #DRPMedicJob.Garages do
+--             local ped = PlayerPedId()
+--             local pedPos = GetEntityCoords(ped)
+--             local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
+--             if distance <= 5.0 then
+--                sleepTimer = 5
+--                exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
+--                if IsControlJustPressed(1,86) then
+--                 SpawnCar(DRPMedicJob.CarSpawns[a])
+--                end
+--             end
+--         end
+--     end
+-- end)
 
 -- Functions -- 
 function GetClosestPlayer()
