@@ -191,6 +191,7 @@ Citizen.CreateThread(function()
                end
             end
         end
+        Citizen.Wait(sleepTimer)
     end
 end)
 
