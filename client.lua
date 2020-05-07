@@ -213,7 +213,11 @@ Citizen.CreateThread(function()
             end
             WarMenu.Display()
         end
+<<<<<<< Updated upstream
         Citizen.Wait(0)
+=======
+        Citizen.Wait(sleepTimer)
+>>>>>>> Stashed changes
     end
 end)
 
