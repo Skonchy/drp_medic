@@ -264,15 +264,11 @@ Citizen.CreateThread(function()
 end)
 -- Hospital Blips --
 Citizen.CreateThread(function()
-local sleepTimer = 1000
-while true do
     local blip = AddBlipForCoord(vector3(307.7, -1433.4, 28.9))
     SetBlipSprite(blip, 61)
 	BeginTextCommandSetBlipName('STRING')
 	AddTextComponentSubstringPlayerName('Hospital')
 	EndTextCommandSetBlipName(blip)
-    Citizen.Wait(sleepTimer)
-end
 end)
 -- Functions -- 
 function GetClosestPlayer()
