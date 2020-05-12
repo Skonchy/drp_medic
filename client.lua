@@ -27,25 +27,28 @@ RegisterCommand("offduty", function(source,args,raw)
 end,false)
 
 RegisterCommand("hire", function(source,args,raw)
-    local target = args[1]
+    local target = args[2]
+    local dept = args[1]
     if target then
-        TriggerServerEvent("DRP_Medic:hire",target)
+        TriggerServerEvent("DRP_Medic:hire",dept,target)
     else
         TriggerEvent("DRP_Core:Info", "Hire", tostring("Target does not exist"),5500,false,"leftCenter")
     end
 end,false)
 
 RegisterCommand("promote", function(source,args,raw)
-    local target = args[1]
+    local target = args[2]
+    local dept = args[1]
     if target then
-        TriggerServerEvent("DRP_Medic:changeRank", target, true)
+        TriggerServerEvent("DRP_Medic:changeRank", dept, target, true)
     end
 end, false)
 
 RegisterCommand("demote",function(source,args,raw)
-    local target = args[1]
+    local target = args[2]
+    local dept = args[1]
     if target then
-        TriggerServerEvent("DRP_Medic:changeRank", target, false)
+        TriggerServerEvent("DRP_Medic:changeRank", dept, target, false)
     end
 end, false)
 
@@ -53,16 +56,15 @@ RegisterCommand("revive", function(source,args,raw)
     local target, distance = GetClosestPlayer()
     local targetPlayer = GetPlayerServerId(target)
     local playerPed = PlayerPedId()
-    print(tostring(target).." "..tostring(distance))
     if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
-        local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
-        for i=1,15 do
-            Citizen.Wait(900)
-            RequestAnimDict(lib)
-            TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
-        end
+        -- local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
+        -- for i=1,15 do
+        --     Citizen.Wait(900)
+        --     RequestAnimDict(lib)
+        --     TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
+        -- end
         TriggerServerEvent("DRP_Medic:revive",targetPlayer)
-        ClearPedTasks(playerPed)
+        --ClearPedTasks(playerPed)
     else
         TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
     end
@@ -98,6 +100,18 @@ RegisterCommand("drag", function()
         TriggerEvent("DRP_Core:Info", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
     end
 end,false)
+
+RegisterNetEvent("DRP_Medic:compressions")
+AddEventHandler("DRP_Medic:compressions", function()
+    local playerPed = PlayerPedId()
+    local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
+        for i=1,15 do
+            Citizen.Wait(900)
+            RequestAnimDict(lib)
+            TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
+        end
+        ClearPedTasks(playerPed)
+end)
 
 RegisterNetEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function()
