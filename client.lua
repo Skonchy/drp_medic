@@ -57,14 +57,7 @@ RegisterCommand("revive", function(source,args,raw)
     local targetPlayer = GetPlayerServerId(target)
     local playerPed = PlayerPedId()
     if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
-        -- local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
-        -- for i=1,15 do
-        --     Citizen.Wait(900)
-        --     RequestAnimDict(lib)
-        --     TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
-        -- end
         TriggerServerEvent("DRP_Medic:revive",targetPlayer)
-        --ClearPedTasks(playerPed)
     else
         TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
     end
@@ -190,23 +183,25 @@ Citizen.CreateThread(function()
     end
 end)
 
--- Citizen.CreateThread(function()
---     local sleepTimer=1000
---     while true do
---         for a=1, #DRPMedicJob.Garages do
---             local ped = PlayerPedId()
---             local pedPos = GetEntityCoords(ped)
---             local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
---             if distance <= 5.0 then
---                sleepTimer = 5
---                exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
---                if IsControlJustPressed(1,86) then
---                 SpawnCar(DRPMedicJob.CarSpawns[a])
---                end
---             end
---         end
---     end
--- end)
+Citizen.CreateThread(function()
+    local sleepTimer=1000
+    while true do
+        for a=1, #DRPMedicJob.Garages do
+            local ped = PlayerPedId()
+            local pedPos = GetEntityCoords(ped)
+            local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
+            if distance <= 5.0 then
+               sleepTimer = 5
+               exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
+               if IsControlJustPressed(1,86) then
+                local ambulance = SpawnCar(DRPMedicJob.CarSpawns[a])
+                SetPedIntoVehicle(ped,ambulance,-1)
+               end
+            end
+        end
+        Citizen.Wait(sleepTimer)
+    end
+end)
 
 -- Functions -- 
 function GetClosestPlayer()
@@ -248,5 +243,5 @@ function SpawnCar(coords)
         RequestModel(hash)
         Citizen.Wait(0)
     end
-    CreateVehicle(hash, coords.x,coords.y,coords.z,coords.h,true,false)
+    return CreateVehicle(hash, coords.x,coords.y,coords.z,coords.h,true,false)
 end
