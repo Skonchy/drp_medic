@@ -1,9 +1,9 @@
 # drp_medic
-Adaptation of DRP_Police for EMS/Medics
+###Adaptation of DRP_Police for EMS/Medics
 
-This script relies on functions from DRP_Police, DRP_ID, DRP_Death, and DRP_JobCore  
+###This script relies on functions from DRP_Police, DRP_ID, DRP_Death, and DRP_JobCore  
   
-This script has the following commands  
+###This script has the following commands  
   - /getcharid  
     - This command returns the sources' character id locally in the chat. This can be used to communicate your character id to a command member for use in the following commands requiring a character id.  
       
