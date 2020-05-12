@@ -2,6 +2,7 @@
 ### Adaptation of DRP_Police for EMS/Medics
 
 ### This script relies on functions from DRP_Police, DRP_ID, DRP_Death, and DRP_JobCore  
+ - Don't forget to add "EMS" to the JobsCoreConfig.Jobs and ["EMS"] = "Emergency Medical Technician"  to JobsCoreConfig.StaticJobLabels
 
 ### Signing on duty and spawning an amublance is done through interactions at Crusade Medical
   
