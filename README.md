@@ -12,8 +12,8 @@ This script has the following commands
     - ex: /promote ems 1  
     - This command will increase the target character's rank in the department by 1 assuming the source has a higher rank than the target and sufficient minimum rank to manage department members.  
     
-  - /demote <department> <charid> ex:  
-    - /demote ems 1  
+  - /demote <department> <charid>  
+    - ex: /demote ems 1  
     - This command will decrease the target character's rank in the department by 1 and fire the target if their rank would be 0 after the demotion assuming the source has a a sufficient minimum rank to manage department members.  
       
   - /911 <department> <message>  
