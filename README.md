@@ -21,4 +21,10 @@ This script has the following commands
       
   - /revive  
     - This command will get the nearest player that is dead to the source and revive them after playing an animation, assuming the source is onduty as EMS.  
+      
+  - /loadin
+    - This command takes the player being dragged and puts them in the nearest vehicle in the first open seat found.  
+      
+  - /unload
+    - This command takes a player out of the closest vehicle and places them outside the vehicle
     
