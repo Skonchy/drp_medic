@@ -44,7 +44,7 @@ RegisterServerEvent("DRP_Medic:changeRank")
 AddEventHandler("DRP_Medic:changeRank", function(target,bool)
     local job = string.upper("EMS")
     local characterInfo, currentPlayerJob = exports["drp_id"]:GetCharacterData(source), exports["drp_jobcore"]:GetPlayerJob(source)
-    local targetInfo, targetPlayerJob = exports["drp_id"]:GetCharacterData(target), exports["drp_jobcore"]:GetPlayerJob(target)
+    --local targetInfo, targetPlayerJob = exports["drp_id"]:GetCharacterData(target), exports["drp_jobcore"]:GetPlayerJob(target)
     -- print("Target "..tostring(target).." data "..tostring(targetInfo))
     -- print("Target job "..tostring(exports["drp_jobcore"]:GetPlayerJob(target)).." name "..exports["drp_id"]:GetCharacterName(target))
     if currentPlayerJob.job == job then
@@ -57,35 +57,36 @@ AddEventHandler("DRP_Medic:changeRank", function(target,bool)
         }, function(results)
             if results.data[1] ~= nil and results.data[1].rank >= 4 then
                 print("Call has results and source is command")
-               if targetPlayerJob.job == job then
+               --if targetPlayerJob.job == job then
                     exports["externalsql"]:AsyncQueryCallback({
                         query = "SELECT * FROM medic WHERE `char_id` = :charid",
                         data = {
-                            charid = targetInfo.charid
+                            charid = target
                         }
                     }, function(results)
+                        if results.data[1] ~= nil then
                         local rankvar
                         if bool then
-                            rankvar = (results[1].rank+1)%5
+                            rankvar = (results.data[1].rank+1)%5
                             exports["externalsql"]:AsyncQuery({
                                 query = "UPDATE medic SET `rank` = :rank WHERE `char_id` = :charid",
                                 data = {
                                     rank = rankvar,
-                                    charid = targetInfo.charid
+                                    charid = target
                                 }
                             })
-                            TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been promoted to EMT grade "..rankvar), 4500, true, "leftCenter")
+                            --TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been promoted to EMT grade "..rankvar), 4500, true, "leftCenter")
                             TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You promoted "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
                         else
                             if results[1].rank == 1 then
                                 exports["externalsql"]:AsyncQuery({
                                     query = "DELETE FROM medic WHERE `char_id` = :charid",
                                     data = {
-                                        charid = targetInfo.charid
+                                        charid = target
                                     }
                                 })
                                 exports["drp_jobcore"]:RequestJobChange(target, false, false, false)
-                                TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been fired"), 4500, true, "leftCenter")
+                                --TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been fired"), 4500, true, "leftCenter")
                                 TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You fired "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
                             else
                                 rankvar = (results[1].rank-1)%5
@@ -93,15 +94,16 @@ AddEventHandler("DRP_Medic:changeRank", function(target,bool)
                                     query = "UPDATE medic SET `rank` = :rank WHERE `char_id` = :charid",
                                     data = {
                                         rank = rankvar,
-                                        charid = targetInfo.charid
+                                        charid = target
                                     }
                                 })
-                                TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been demoted to EMT grade "..rankvar), 4500, true, "leftCenter")
+                                --TriggerClientEvent("DRP_Core:Info",target,"EMS",tostring("You have been demoted to EMT grade "..rankvar), 4500, true, "leftCenter")
                                 TriggerClientEvent("DRP_Core:Info",source,"EMS",tostring("You demoted "..exports["drp_id"]:GetCharacterName(target)..""), 4500, true, "leftCenter")
                             end
                         end
+                        end
                     end)
-               end
+                --end
             end
         end)
     end
@@ -112,9 +114,10 @@ AddEventHandler("DRP_Medic:hire", function(target)
     local characterInfo, targetInfo = exports["drp_id"]:GetCharacterData(source), exports["drp_id"]:GetCharacterData(target)
     local playerjob = exports["drp_jobcore"]:GetPlayerJob(source)
     local playerRank
+    print(characterInfo.charid)
     if playerjob.job == "EMS" then
         exports["externalsql"]:AsyncQueryCallback({
-            query = "SELECT * FROM medic WHERE `char_id`= :charid",
+            query = "SELECT * FROM medic WHERE char_id= :charid",
             data = {
                 charid=characterInfo.charid
             }
@@ -122,19 +125,19 @@ AddEventHandler("DRP_Medic:hire", function(target)
             if result.data[1] ~= nil then
                 playerRank = result.data[1].rank
             end
+            if playerRank >= 4 then
+                exports["drp_jobcore"]:RequestJobChange(target,"EMS","Emergency Medical Technician",false)
+                exports["externalsql"]:AsyncQuery({
+                    query = "INSERT INTO medic VALUES (DEFAULT, 1, :targetid)",
+                    data = {
+                        targetid=targetInfo.charid
+                    }
+                })
+                TriggerClientEvent("DRP_Core:Info", target, "Government", tostring("You are now an Emergency Medical Technician Grade 1"), 4000, true, "leftCenter")
+            else 
+                TriggerClientEvent("DRP_Core:Info", src, "EMS", tostring("You are not a high enough rank to hire people"), 4000, true, "leftCenter")
+            end
         end)
-        if playerRank >= 4 then
-            exports["drp_jobcore"]:RequestJobChange(target,"EMS","Emergency Medical Technician",false)
-            exports["externalsql"]:AsyncQuery({
-                query = "INSERT INTO medic VALUES (DEFAULT, 1, :targetid)",
-                data = {
-                    targetid=targetInfo.charid
-                }
-            })
-            TriggerClientEvent("DRP_Core:Info", target, "Government", tostring("You are now an Emergency Medical Technician Grade 1"), 4000, true, "leftCenter")
-        else 
-            TriggerClientEvent("DRP_Core:Info", src, "EMS", tostring("You are not a high enough rank to hire people"), 4000, true, "leftCenter")
-        end
     end
 end)
 

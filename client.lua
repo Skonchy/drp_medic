@@ -31,15 +31,14 @@ RegisterCommand("hire", function(source,args,raw)
     if target then
         TriggerServerEvent("DRP_Medic:hire",target)
     else
-        TriggerEvent("DRP_Core:Info", "Hire", tostring("Target does not exist"),7000,false,"leftCenter")
+        TriggerEvent("DRP_Core:Info", "Hire", tostring("Target does not exist"),5500,false,"leftCenter")
     end
 end,false)
 
 RegisterCommand("promote", function(source,args,raw)
-    --local target, distance = GetClosestPlayer()
-    print(tostring(target).." "..tostring(GetPlayerFromServerId(target).." "..tostring(distance).." "..tostring(GetPlayerServerId(target))))
+    local target = args[1]
     if target then
-        TriggerServerEvent("DRP_Medic:changeRank",GetPlayerServerId(target), true)
+        TriggerServerEvent("DRP_Medic:changeRank", target, true)
     end
 end, false)
 
