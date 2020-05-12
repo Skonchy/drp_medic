@@ -2,6 +2,8 @@
 ### Adaptation of DRP_Police for EMS/Medics
 
 ### This script relies on functions from DRP_Police, DRP_ID, DRP_Death, and DRP_JobCore  
+
+### Signing on Duty and spawning an amublance is done through interactions at Crusade Medical
   
 ### This script has the following commands  
   - ##### /getcharid  
