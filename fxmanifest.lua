@@ -5,7 +5,8 @@ game 'gta5'
 dependencies {
     "drp_jobcore",
     "drp_police",
-    "externalsql"
+    "externalsql",
+    "drp_id"
 }
 
 client_scripts{
