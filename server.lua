@@ -150,6 +150,32 @@ AddEventHandler("DRP_Medic:hire", function(dept, target)
     end
 end)
 
+RegisterServerEvent("DRP_Medic:PutInVehicle")
+AddEventHandler("DRP_Medic:PutInVehicle", function(target)
+    local src = source
+    local srcJob = exports["drp_jobcore"]:GetPlayerJob(src)
+    if srcJob.job == "EMS" and target ~= nil then
+        TriggerClientEvent("DRP_Medic:PutInVehicle", target)
+    elseif srcJob.job ~= "EMS" then
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
+    end
+end)
+
+RegisterServerEvent("DRP_Medic:OutOfVehicle")
+AddEventHandler("DRP_Medic:OutOfVehicle", function(target)
+    local src = source
+    local srcJob = exports["drp_jobcore"]:GetPlayerJob(src)
+    if srcJob.job == "EMS" and target ~= nil then
+        TriggerClientEvent("DRP_Medic:PutInVehicle", target)
+    elseif srcJob.job ~= "EMS" then
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
+    end
+end)
+
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
@@ -158,9 +184,9 @@ AddEventHandler("DRP_Medic:revive", function(target)
         Citizen.Wait(13500)
         TriggerClientEvent("DRP_Core:Revive",target)
     elseif playerjob.job ~= "EMS" then
-        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+        TriggerClientEvent("DRP_Core:Warning",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
     else
-        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
+        TriggerClientEvent("DRP_Core:Warning",source,"Government", tostring("No target found"),4500,false,"leftCenter")
     end
 end)
 

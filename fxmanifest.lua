@@ -6,7 +6,8 @@ dependencies {
     "drp_jobcore",
     "drp_police",
     "externalsql",
-    "drp_id"
+    "drp_id",
+    "drp_death"
 }
 
 client_scripts{
