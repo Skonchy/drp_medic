@@ -96,7 +96,7 @@ end,false)
 RegisterCommand("loadin", function()
     local target, distance = GetClosestPlayer()
     if distance ~= nil and distance < 3 then
-        TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
+        --TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
         TriggerServerEvent("DRP_Medic:PutInVehicle",GetPlayerServerId(target))
     else
         TriggerEvent("DRP_Core:Warning", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
@@ -105,7 +105,7 @@ end)
 
 RegisterCommand("unload", function()
     local target, distance = GetClosestPlayer()
-    if distance ~= nil and distance < 3 then
+    if distance ~= nil and distance < 7 then
         TriggerServerEvent("DRP_Medic:OutOfVehicle", GetPlayerServerId(target))
     end
 end)
@@ -151,9 +151,10 @@ end)
 
 RegisterNetEvent("DRP_Medic:PutInVehicle")
 AddEventHandler("DRP_Medic:PutInVehicle", function()
+    print("You are being put in a vehicle")
     local player = PlayerPedId()
     local coords = GetEntityCoords(player)
-    if IsVehicleNearPoint(coords,5.0) then
+    if IsAnyVehicleNearPoint(coords,5.0) then
         local vehicle = GetClosestVehicle(coords,5.0,0,71)
         local maxSeats = GetVehicleMaxNumberOfPassengers(vehicle)
         local freeSeat
@@ -171,13 +172,22 @@ AddEventHandler("DRP_Medic:PutInVehicle", function()
     end
 end)
 
-RegisterNetEvent('DRP_Medic:OutVehicle')
-AddEventHandler('DRP_Medic:OutVehicle', function()
-	local playerPed = PlayerPedId()
+RegisterNetEvent("DRP_Medic:OutVehicle")
+AddEventHandler("DRP_Medic:OutVehicle", function()
+    local playerPed = PlayerPedId()
+    print("You are being pulled from a vehicle")
 	if IsPedSittingInAnyVehicle(playerPed) then
 		local vehicle = GetVehiclePedIsIn(playerPed, false)
 		TaskLeaveVehicle(playerPed, vehicle, 16)
 	end
+end)
+
+RegisterNetEvent("DRP_Medic:SpawnVehicle")
+AddEventHandler("DRP_Medic:SpawnVehicle", function(coords)
+    print("attempting to spawn car")
+    local ped = PlayerPedId()
+    local ambulance = SpawnCar(coords)
+    SetPedIntoVehicle(ped,ambulance,-1)
 end)
 
 
@@ -207,7 +217,7 @@ Citizen.CreateThread(function()
     end
 end)
 
--- Sign On/Off and Garage Zones --
+-- Sign On/Off --
 Citizen.CreateThread(function()
     local sleepTimer = 1000
     while true do
@@ -231,7 +241,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(sleepTimer)
     end
 end)
-
+-- Garage Zones --
 Citizen.CreateThread(function()
     local sleepTimer=1000
     while true do
@@ -241,17 +251,29 @@ Citizen.CreateThread(function()
             local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
             if distance <= 5.0 then
                sleepTimer = 5
-               exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
+               exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance ~r~[X]~w~ to delete your ambulance"))
                if IsControlJustPressed(1,86) then
-                local ambulance = SpawnCar(DRPMedicJob.CarSpawns[a])
-                SetPedIntoVehicle(ped,ambulance,-1)
+                TriggerServerEvent("DRP_Medic:SpawnVehicle",DRPMedicJob.CarSpawns[a])
+               elseif IsControlJustPressed(1,73) then
+                DeleteVehicle(GetVehiclePedIsIn(ped,true))
                end
             end
         end
         Citizen.Wait(sleepTimer)
     end
 end)
-
+-- Hospital Blips --
+Citizen.CreateThread(function()
+local sleepTimer = 1000
+while true do
+    local blip = AddBlipForCoord(vector3(307.7, -1433.4, 28.9))
+    SetBlipSprite(blip, 61)
+	BeginTextCommandSetBlipName('STRING')
+	AddTextComponentSubstringPlayerName('Hospital')
+	EndTextCommandSetBlipName(blip)
+    Citizen.Wait(sleepTimer)
+end
+end)
 -- Functions -- 
 function GetClosestPlayer()
     local players = GetPlayers()
