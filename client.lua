@@ -151,7 +151,6 @@ end)
 
 RegisterNetEvent("DRP_Medic:PutInVehicle")
 AddEventHandler("DRP_Medic:PutInVehicle", function()
-    print("You are being put in a vehicle")
     local player = PlayerPedId()
     local coords = GetEntityCoords(player)
     if IsAnyVehicleNearPoint(coords,5.0) then
@@ -175,7 +174,6 @@ end)
 RegisterNetEvent("DRP_Medic:OutVehicle")
 AddEventHandler("DRP_Medic:OutVehicle", function()
     local playerPed = PlayerPedId()
-    print("You are being pulled from a vehicle")
 	if IsPedSittingInAnyVehicle(playerPed) then
 		local vehicle = GetVehiclePedIsIn(playerPed, false)
 		TaskLeaveVehicle(playerPed, vehicle, 16)
@@ -184,7 +182,6 @@ end)
 
 RegisterNetEvent("DRP_Medic:SpawnVehicle")
 AddEventHandler("DRP_Medic:SpawnVehicle", function(coords)
-    print("attempting to spawn car")
     local ped = PlayerPedId()
     local ambulance = SpawnCar(coords)
     SetPedIntoVehicle(ped,ambulance,-1)
@@ -221,7 +218,6 @@ end)
 Citizen.CreateThread(function()
     local sleepTimer = 1000
     while true do
-        print("Current Health: "..GetEntityHealth(PlayerPedId()))
         for a = 1, #DRPMedicJob.SignOnAndOff do
         local ped = PlayerPedId()
         local pedPos = GetEntityCoords(ped)
