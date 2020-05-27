@@ -190,7 +190,14 @@ end)
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-    if playerjob.job == "EMS" and target ~= 0 then
+    local character =  exports['drp_id']:GetCharacterData(source)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+    if (playerjob.job == "EMS" and target ~= 0) or (user.rank == "admin" or "superadmin") then
         TriggerClientEvent("DRP_Medic:compressions",source)
         Citizen.Wait(13500)
         TriggerClientEvent("DRP_Core:Revive",target)
@@ -226,7 +233,14 @@ end)
 RegisterServerEvent("DRP_Medic:heal")
 AddEventHandler("DRP_Medic:heal", function(target)
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-        if playerjob.job == "EMS" and target ~= 0 then
+    local character =  exports['drp_id']:GetCharacterData(source)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+        if (playerjob.job == "EMS" and target ~= 0) or (user.rank == "admin" or "superadmin") then
             TriggerClientEvent("DRP_Medic:heal",target)
         elseif playerjob.job ~= "EMS" then
             TriggerClientEvent("DRP_Core:Info",source,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
