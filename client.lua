@@ -79,17 +79,37 @@ RegisterCommand("heal", function(source,args,raw)
     end
 end,false)
 
-RegisterCommand("911", function(source, args, raw)
-    local src = source
-    local callTarget = args[1]
-    local callInformation = table.concat(args, ' ', 2, #args)
-    local coords = GetEntityCoords(GetPlayerPed(PlayerId()))
-    if callInformation ~= nil then
-        if callTarget == "ems" then
-            TriggerServerEvent("DRP_Medic:CallHandler", {x = coords.x, y = coords.y , z = coords.z}, callInformation)
-        end
+RegisterCommand("arevive", function(source,args,raw)
+    local target, distance = GetClosestPlayer()
+    local targetPlayer = GetPlayerServerId(target)
+    local playerPed = PlayerPedId()
+    if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
+        TriggerServerEvent("DRP_Medic:arevive",targetPlayer)
+    else
+        TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
     end
 end,false)
+
+RegisterCommand("aheal", function(source,args,raw)
+    local target, distance = GetClosestPlayer()
+    if distance ~= nil and distance < 3 then
+        TriggerServerEvent("DRP_Medic:aheal",GetPlayerServerId(target))
+    else
+        TriggerEvent("DRP_Core:Info", "EMS", tostring("No persons near you"), 7000, false, "leftCenter")
+    end
+end,false)
+
+-- RegisterCommand("911", function(source, args, raw)
+--     local src = source
+--     local callTarget = args[1]
+--     local callInformation = table.concat(args, ' ', 2, #args)
+--     local coords = GetEntityCoords(GetPlayerPed(PlayerId()))
+--     if callInformation ~= nil then
+--         if callTarget == "ems" then
+--             TriggerServerEvent("DRP_Medic:CallHandler", {x = coords.x, y = coords.y , z = coords.z}, callInformation)
+--         end
+--     end
+-- end,false)
 
 RegisterCommand("drag", function()
     local target, distance = GetClosestPlayer()
@@ -124,7 +144,7 @@ AddEventHandler("DRP_Medic:revive", function()
 end)
 
 RegisterNetEvent("DRP_Medic:heal")
-AddEventHandler("DRP_Medic:heal", function(target)
+AddEventHandler("DRP_Medic:heal", function()
     local playerPed = PlayerPedId()
     local maxHealth = GetEntityMaxHealth(playerPed)
     SetEntityHealth(playerPed,maxHealth)

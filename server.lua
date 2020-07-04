@@ -113,7 +113,8 @@ end)
 
 RegisterServerEvent("DRP_Medic:hire")
 AddEventHandler("DRP_Medic:hire", function(dept, target)
-    local characterInfo = exports["drp_id"]:GetCharacterData(source)
+    local src = source
+    local characterInfo = exports["drp_id"]:GetCharacterData(src)
     local targetName
     exports["externalsql"]:AsyncQueryCallback({
         query = "SELECT * FROM characters WHERE id = :charid",
@@ -123,7 +124,7 @@ AddEventHandler("DRP_Medic:hire", function(dept, target)
     }, function(result)
         targetName = result.data[1].name
     end)
-    local playerjob = exports["drp_jobcore"]:GetPlayerJob(source)
+    local playerjob = exports["drp_jobcore"]:GetPlayerJob(src)
     local playerRank
     if playerjob.job == string.upper(dept) then
         exports["externalsql"]:AsyncQueryCallback({
@@ -144,7 +145,7 @@ AddEventHandler("DRP_Medic:hire", function(dept, target)
                 })
                 --TriggerClientEvent("DRP_Core:Info", target, "Government", tostring("You are now an Emergency Medical Technician Grade 1"), 4000, true, "leftCenter")
             else 
-                TriggerClientEvent("DRP_Core:Info", src, "EMS", tostring("You are not a high enough rank to hire people"), 4000, true, "leftCenter")
+                TriggerClientEvent("DRP_Core:Warning", src, "EMS", tostring("You are not a high enough rank to hire people"), 4000, true, "leftCenter")
             end
         end)
     end
@@ -152,6 +153,7 @@ end)
 
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
+<<<<<<< Updated upstream
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
     if playerjob.job == "EMS" and target ~= 0 then
         TriggerClientEvent("DRP_Medic:compressions",source)
@@ -161,6 +163,70 @@ AddEventHandler("DRP_Medic:revive", function(target)
         TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
     else
         TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
+=======
+    local src = source
+    local playerjob = exports['drp_jobcore']:GetPlayerJob(src)
+    local character =  exports['drp_id']:GetCharacterData(src)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+    if (playerjob.job == "EMS" and target ~= (0 or nil))then
+        TriggerClientEvent("DRP_Medic:compressions",src)
+        Citizen.Wait(13500)
+        TriggerClientEvent("DRP_Core:Revive",target)
+    elseif playerjob.job ~= "EMS" then
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
+    end
+end)
+
+RegisterServerEvent("DRP_Medic:arevive")
+AddEventHandler("DRP_Medic:arevive", function(target)
+    local src = source
+    local character =  exports['drp_id']:GetCharacterData(src)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+    if user.data[1] ~= nil then
+        user = user.data[1]
+    end
+    if (user.rank == "admin" or user.rank == "superadmin") and target ~= 0 then
+        TriggerClientEvent("DRP_Core:Revive",target)
+    elseif (user.rank == "admin" or user.rank == "superadmin") then
+        TriggerClientEvent("DRP_Core:Revive",src)
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an Admin"),4500,false,"leftCenter")
+    end
+end)
+
+RegisterServerEvent("DRP_Medic:aheal")
+AddEventHandler("DRP_Medic:aheal", function(target)
+    local src = source
+    local character =  exports['drp_id']:GetCharacterData(src)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+    if user.data[1] ~= nil then
+        user = user.data[1]
+    end
+    if (user.rank == "admin" or user.rank == "superadmin") and target ~= 0 then
+        TriggerClientEvent("DRP_Core:heal",target)
+    elseif (user.rank == "admin" or user.rank == "superadmin") then
+        print("You should be healed")
+        TriggerClientEvent("DRP_Core:heal",src)
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an Admin"),4500,false,"leftCenter")
+>>>>>>> Stashed changes
     end
 end)
 
@@ -188,13 +254,26 @@ end)
 
 RegisterServerEvent("DRP_Medic:heal")
 AddEventHandler("DRP_Medic:heal", function(target)
+<<<<<<< Updated upstream
     local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
         if playerjob.job == "EMS" and target ~= 0 then
+=======
+    local src = source
+    local playerjob = exports['drp_jobcore']:GetPlayerJob(src)
+    local character =  exports['drp_id']:GetCharacterData(src)
+    local user = exports["externalsql"]:AsyncQuery({
+        query = "SELECT * FROM users WHERE id = :playerid",
+        data = {
+            playerid = character.playerid
+        }
+    })
+        if (playerjob.job == "EMS" and target ~= (nil or 0)) then
+>>>>>>> Stashed changes
             TriggerClientEvent("DRP_Medic:heal",target)
         elseif playerjob.job ~= "EMS" then
-            TriggerClientEvent("DRP_Core:Info",source,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
+            TriggerClientEvent("DRP_Core:Warning",src,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
         else
-            TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
+            TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
         end
 end)
 
@@ -216,3 +295,16 @@ AddEventHandler("DRP_Medic:CallHandler", function(coords, information)
         end
     end
 end)
+
+function dump(o)
+    if type(o) == 'table' then
+       local s = '{ '
+       for k,v in pairs(o) do
+          if type(k) ~= 'number' then k = '"'..k..'"' end
+          s = s .. '['..k..'] = ' .. dump(v) .. ','
+       end
+       return s .. '} '
+    else
+       return tostring(o)
+    end
+ end
