@@ -153,17 +153,6 @@ end)
 
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
-<<<<<<< Updated upstream
-    local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-    if playerjob.job == "EMS" and target ~= 0 then
-        TriggerClientEvent("DRP_Medic:compressions",source)
-        Citizen.Wait(13500)
-        TriggerClientEvent("DRP_Core:Revive",target)
-    elseif playerjob.job ~= "EMS" then
-        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
-    else
-        TriggerClientEvent("DRP_Core:Info",source,"Government", tostring("No target found"),4500,false,"leftCenter")
-=======
     local src = source
     local playerjob = exports['drp_jobcore']:GetPlayerJob(src)
     local character =  exports['drp_id']:GetCharacterData(src)
@@ -173,7 +162,7 @@ AddEventHandler("DRP_Medic:revive", function(target)
             playerid = character.playerid
         }
     })
-    if (playerjob.job == "EMS" and target ~= (0 or nil))then
+    if (playerjob.job == "EMS" and target ~= 0)then
         TriggerClientEvent("DRP_Medic:compressions",src)
         Citizen.Wait(13500)
         TriggerClientEvent("DRP_Core:Revive",target)
@@ -226,7 +215,6 @@ AddEventHandler("DRP_Medic:aheal", function(target)
         TriggerClientEvent("DRP_Core:heal",src)
     else
         TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an Admin"),4500,false,"leftCenter")
->>>>>>> Stashed changes
     end
 end)
 
@@ -254,10 +242,6 @@ end)
 
 RegisterServerEvent("DRP_Medic:heal")
 AddEventHandler("DRP_Medic:heal", function(target)
-<<<<<<< Updated upstream
-    local playerjob = exports['drp_jobcore']:GetPlayerJob(source)
-        if playerjob.job == "EMS" and target ~= 0 then
-=======
     local src = source
     local playerjob = exports['drp_jobcore']:GetPlayerJob(src)
     local character =  exports['drp_id']:GetCharacterData(src)
@@ -267,8 +251,7 @@ AddEventHandler("DRP_Medic:heal", function(target)
             playerid = character.playerid
         }
     })
-        if (playerjob.job == "EMS" and target ~= (nil or 0)) then
->>>>>>> Stashed changes
+        if (playerjob.job == "EMS" and target ~= 0) then
             TriggerClientEvent("DRP_Medic:heal",target)
         elseif playerjob.job ~= "EMS" then
             TriggerClientEvent("DRP_Core:Warning",src,"Government",tostring("You are not an EMS"),4500,false,"leftCenter")
