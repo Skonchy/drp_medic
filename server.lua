@@ -151,6 +151,43 @@ AddEventHandler("DRP_Medic:hire", function(dept, target)
     end
 end)
 
+RegisterServerEvent("DRP_Medic:SpawnVehicle")
+AddEventHandler("DRP_Medic:SpawnVehicle", function(coords)
+    local src = source
+    local srcJob = exports["drp_jobcore"]:GetPlayerJob(src)
+    print(srcJob.job)
+    if srcJob.job == "EMS" then
+        TriggerClientEvent("DRP_Medic:SpawnVehicle", src, coords)
+    end
+end)
+
+RegisterServerEvent("DRP_Medic:PutInVehicle")
+AddEventHandler("DRP_Medic:PutInVehicle", function(target)
+    local src = source
+    local srcJob = exports["drp_jobcore"]:GetPlayerJob(src)
+    if srcJob.job == "EMS" and target ~= nil then
+        TriggerClientEvent("DRP_Medic:PutInVehicle", target)
+    elseif srcJob.job ~= "EMS" then
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
+    end
+end)
+
+RegisterServerEvent("DRP_Medic:OutOfVehicle")
+AddEventHandler("DRP_Medic:OutOfVehicle", function(target)
+    local src = source
+    local srcJob = exports["drp_jobcore"]:GetPlayerJob(src)
+    print(target)
+    if srcJob.job == "EMS" and target ~= 0 then
+        TriggerClientEvent("DRP_Medic:OutVehicle", target)
+    elseif srcJob.job ~= "EMS" then
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("You are not an EMS"),4500,false,"leftCenter")
+    else
+        TriggerClientEvent("DRP_Core:Warning",src,"Government", tostring("No target found"),4500,false,"leftCenter")
+    end
+end)
+
 RegisterServerEvent("DRP_Medic:revive")
 AddEventHandler("DRP_Medic:revive", function(target)
     local src = source

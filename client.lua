@@ -57,14 +57,7 @@ RegisterCommand("revive", function(source,args,raw)
     local targetPlayer = GetPlayerServerId(target)
     local playerPed = PlayerPedId()
     if distance ~= nil and distance < 3 and IsPedDeadOrDying(targetPlayer,1) then
-        -- local lib, anim = 'mini@cpr@char_a@cpr_str', 'cpr_pumpchest'
-        -- for i=1,15 do
-        --     Citizen.Wait(900)
-        --     RequestAnimDict(lib)
-        --     TaskPlayAnim(playerPed, lib, anim, 8.0, -8.0, -1, 0, 0.0, false, false, false)
-        -- end
         TriggerServerEvent("DRP_Medic:revive",targetPlayer)
-        --ClearPedTasks(playerPed)
     else
         TriggerEvent("DRP_Core:Info", "EMS", tostring("No dead persons near you"), 7000, false, "leftCenter")
     end
@@ -116,9 +109,26 @@ RegisterCommand("drag", function()
     if distance ~= nil and distance < 3 then
         TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
     else
-        TriggerEvent("DRP_Core:Info", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
+        TriggerEvent("DRP_Core:Warning", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
     end
 end,false)
+
+RegisterCommand("loadin", function()
+    local target, distance = GetClosestPlayer()
+    if distance ~= nil and distance < 3 then
+        --TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
+        TriggerServerEvent("DRP_Medic:PutInVehicle",GetPlayerServerId(target))
+    else
+        TriggerEvent("DRP_Core:Warning", "EMS", tostring("No Persons Near You"), 7000, false, "leftCenter")
+    end
+end)
+
+RegisterCommand("unload", function()
+    local target, distance = GetClosestPlayer()
+    if distance ~= nil and distance < 7 then
+        TriggerServerEvent("DRP_Medic:OutOfVehicle", GetPlayerServerId(target))
+    end
+end)
 
 RegisterNetEvent("DRP_Medic:compressions")
 AddEventHandler("DRP_Medic:compressions", function()
@@ -158,6 +168,46 @@ AddEventHandler("DRP_Medic:AwaitingCall", function(coords)
     SendNotification("Press ~g~E~s~ to accept call or press ~g~X~s~ to refuse call")
     PlaySoundFrontend(-1, "TENNIS_POINT_WON", "HUD_AWARDS")
 end)
+
+RegisterNetEvent("DRP_Medic:PutInVehicle")
+AddEventHandler("DRP_Medic:PutInVehicle", function()
+    local player = PlayerPedId()
+    local coords = GetEntityCoords(player)
+    if IsAnyVehicleNearPoint(coords,5.0) then
+        local vehicle = GetClosestVehicle(coords,5.0,0,71)
+        local maxSeats = GetVehicleMaxNumberOfPassengers(vehicle)
+        local freeSeat
+        for i=maxSeats - 1, 0 , -1 do
+            if IsVehicleSeatFree(vehicle, i) then
+                freeSeat = i
+                break
+            end
+        end
+        if freeSeat then
+            TaskWarpPedIntoVehicle(player,vehicle,freeSeat)
+        else
+            TriggerEvent("DRP_Core:Warning","EMS",tostring("No available seats in vehicle"), 5500, false, "leftCenter")
+        end
+    end
+end)
+
+RegisterNetEvent("DRP_Medic:OutVehicle")
+AddEventHandler("DRP_Medic:OutVehicle", function()
+    local playerPed = PlayerPedId()
+	if IsPedSittingInAnyVehicle(playerPed) then
+		local vehicle = GetVehiclePedIsIn(playerPed, false)
+		TaskLeaveVehicle(playerPed, vehicle, 16)
+	end
+end)
+
+RegisterNetEvent("DRP_Medic:SpawnVehicle")
+AddEventHandler("DRP_Medic:SpawnVehicle", function(coords)
+    local ped = PlayerPedId()
+    local ambulance = SpawnCar(coords)
+    SetPedIntoVehicle(ped,ambulance,-1)
+end)
+
+
 -- 911 Calls Thread -- 
 Citizen.CreateThread(function()
     while true do 
@@ -184,7 +234,7 @@ Citizen.CreateThread(function()
     end
 end)
 
--- Sign On/Off and Garage Zones --
+-- Sign On/Off --
 Citizen.CreateThread(function()
     local sleepTimer = 1000
     while true do
@@ -207,25 +257,36 @@ Citizen.CreateThread(function()
         Citizen.Wait(sleepTimer)
     end
 end)
-
--- Citizen.CreateThread(function()
---     local sleepTimer=1000
---     while true do
---         for a=1, #DRPMedicJob.Garages do
---             local ped = PlayerPedId()
---             local pedPos = GetEntityCoords(ped)
---             local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
---             if distance <= 5.0 then
---                sleepTimer = 5
---                exports['drp_core']:DrawText3Ds(DRPMedicJob.SignOnAndOff[a].x, DRPMedicJob.SignOnAndOff[a].y, DRPMedicJob.SignOnAndOff[a].z, tostring("~b~[E]~w~ to spawn an ambulance"))
---                if IsControlJustPressed(1,86) then
---                 SpawnCar(DRPMedicJob.CarSpawns[a])
---                end
---             end
---         end
---     end
--- end)
-
+-- Garage Zones --
+Citizen.CreateThread(function()
+    local sleepTimer=1000
+    while true do
+        for a=1, #DRPMedicJob.Garages do
+            local ped = PlayerPedId()
+            local pedPos = GetEntityCoords(ped)
+            local distance = Vdist(pedPos.x,pedPos.y,pedPos.z, DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z)
+            if distance <= 5.0 then
+               sleepTimer = 5
+               exports['drp_core']:DrawText3Ds(DRPMedicJob.Garages[a].x, DRPMedicJob.Garages[a].y, DRPMedicJob.Garages[a].z, tostring("~b~[E]~w~ to spawn an ambulance ~r~[X]~w~ to delete your ambulance"))
+               if IsControlJustPressed(1,86) then
+                TriggerServerEvent("DRP_Medic:SpawnVehicle",DRPMedicJob.CarSpawns[a])
+               elseif IsControlJustPressed(1,73) then
+                DeleteVehicle(GetVehiclePedIsIn(ped,true))
+               end
+            end
+        end
+        Citizen.Wait(sleepTimer)
+    end
+end)
+-- Hospital Blips --
+Citizen.CreateThread(function()
+    local blip = AddBlipForCoord(vector3(307.7, -1433.4, 28.9))
+    SetBlipSprite(blip, 61)
+	BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName('Hospital')
+    EndTextCommandSetBlipName(blip)
+    SetBlipAsShortRange(blip,true)
+end)
 -- Functions -- 
 function GetClosestPlayer()
     local players = GetPlayers()
@@ -266,5 +327,5 @@ function SpawnCar(coords)
         RequestModel(hash)
         Citizen.Wait(0)
     end
-    CreateVehicle(hash, coords.x,coords.y,coords.z,coords.h,true,false)
+    return CreateVehicle(hash, coords.x,coords.y,coords.z,coords.h,true,false)
 end
