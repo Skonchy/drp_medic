@@ -113,7 +113,6 @@ end,false)
 
 RegisterCommand("drag", function()
     local target, distance = GetClosestPlayer()
-    print(tostring(target).." "..tostring(distance))
     if distance ~= nil and distance < 3 then
         TriggerServerEvent("DRP_Police:CheckLEOEscort",GetPlayerServerId(target))
     else
@@ -189,7 +188,6 @@ end)
 Citizen.CreateThread(function()
     local sleepTimer = 1000
     while true do
-        print("Current Health: "..GetEntityHealth(PlayerPedId()))
         for a = 1, #DRPMedicJob.SignOnAndOff do
         local ped = PlayerPedId()
         local pedPos = GetEntityCoords(ped)

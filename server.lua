@@ -162,7 +162,7 @@ AddEventHandler("DRP_Medic:revive", function(target)
             playerid = character.playerid
         }
     })
-    if (playerjob.job == "EMS" and target ~= 0)then
+    if ((playerjob.job == "EMS" or playerjob.job == "POLICE") and target ~= 0)then
         TriggerClientEvent("DRP_Medic:compressions",src)
         Citizen.Wait(13500)
         TriggerClientEvent("DRP_Core:Revive",target)
